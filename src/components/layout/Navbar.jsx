@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { NAV_LINKS, PORTAL_LINKS, SITE_INFO } from '../../data/mockData';
+import { NAV_LINKS, SITE_INFO } from '../../data/mockData';
 import useAuth from '../../hooks/useAuth';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isPortalDropdownOpen, setIsPortalDropdownOpen] = useState(false);
-  const { user, logout } = useAuth();
+  const { user, role, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -64,53 +63,36 @@ const Navbar = () => {
               </NavLink>
             ))}
 
-            {/* Portal Dropdown */}
-            <div 
-              className="relative"
-              onMouseEnter={() => setIsPortalDropdownOpen(true)}
-              onMouseLeave={() => setIsPortalDropdownOpen(false)}
-            >
-              <button className="flex items-center gap-1 text-sm font-medium text-charcoal hover:text-brand-orange py-2 transition-colors">
-                {user ? (
-                  <div className="flex items-center gap-2">
+            {/* Login / Dashboard Button */}
+            <div className="relative flex items-center">
+              {user ? (
+                <div className="flex items-center gap-4 ml-4">
+                  <Link 
+                    to={role === 'admin' ? '/admin/dashboard' : '/portal/dashboard'}
+                    className="flex items-center gap-2 text-sm font-medium text-brand-orange hover:text-brand-orange-dark transition-colors"
+                  >
                     <div className="w-7 h-7 bg-brand-orange-light text-brand-orange rounded-full flex items-center justify-center font-bold text-xs">
-                      {user.displayName?.charAt(0) || 'S'}
+                      {user.displayName?.charAt(0) || user.name?.charAt(0) || 'S'}
                     </div>
-                    <span>Portal</span>
-                  </div>
-                ) : (
-                  "Student Portal"
-                )}
-                <svg className={`w-4 h-4 transition-transform ${isPortalDropdownOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              
-              {isPortalDropdownOpen && (
-                <div className="absolute top-full right-0 w-56 bg-white shadow-lg rounded-xl border border-gray-100 py-2 mt-1">
-                  {PORTAL_LINKS.map((link) => (
-                    <Link
-                      key={link.name}
-                      to={link.path}
-                      className="flex items-center justify-between px-4 py-2.5 text-sm text-charcoal hover:bg-bg-primary transition-colors"
-                    >
-                      {link.name}
-                      {!user && (
-                        <span className="bg-gray-100 text-gray-500 text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1">
-                          🔒 Login
-                        </span>
-                      )}
-                    </Link>
-                  ))}
-                  {user && (
-                    <button
-                      onClick={() => logout()}
-                      className="w-full text-left px-4 py-2.5 text-sm text-error hover:bg-red-50 transition-colors border-t border-gray-100 mt-1"
-                    >
-                      Logout
-                    </button>
-                  )}
+                    <span>Dashboard</span>
+                  </Link>
+                  <button
+                    onClick={() => logout()}
+                    className="text-sm font-medium text-gray-400 hover:text-error transition-colors"
+                  >
+                    Logout
+                  </button>
                 </div>
+              ) : (
+                <Link 
+                  to="/login"
+                  className="flex items-center gap-2 text-sm font-bold text-brand-orange hover:text-brand-orange-dark transition-colors py-2 ml-2"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                  </svg>
+                  Login
+                </Link>
               )}
             </div>
           </div>
@@ -175,22 +157,16 @@ const Navbar = () => {
               </Link>
             ))}
             
-            <div className="shrink-0 mt-4">
-              <p className="text-xs uppercase tracking-wider font-bold text-gray-400 mb-4">
-                {user ? `Portal (${user.displayName || user.name || 'Student'})` : 'Student Portal'}
-              </p>
-              <div className="flex flex-col gap-4">
-                {PORTAL_LINKS.map((link) => (
+            <div className="shrink-0 mt-4 pt-4 border-t border-gray-100">
+              {user ? (
+                <div className="flex flex-col gap-4">
                   <Link
-                    key={link.name}
-                    to={link.path}
+                    to={role === 'admin' ? '/admin/dashboard' : '/portal/dashboard'}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center gap-2 text-base text-charcoal shrink-0"
+                    className="flex items-center gap-2 text-lg font-medium text-brand-orange shrink-0"
                   >
-                    {!user && <span className="text-sm">🔒</span>} {link.name}
+                    Dashboard
                   </Link>
-                ))}
-                {user && (
                   <button
                     onClick={() => {
                       logout();
@@ -200,8 +176,19 @@ const Navbar = () => {
                   >
                     Logout
                   </button>
-                )}
-              </div>
+                </div>
+              ) : (
+                <Link
+                  to="/login"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-2 text-lg font-medium text-brand-orange shrink-0"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                  </svg>
+                  Login / Sign Up
+                </Link>
+              )}
             </div>
           </div>
 
