@@ -5,7 +5,9 @@ import {
   signOut, 
   onAuthStateChanged, 
   updateProfile,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  GoogleAuthProvider,
+  signInWithPopup
 } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 import { userService } from '../services/userService';
@@ -93,6 +95,28 @@ export const AuthProvider = ({ children }) => {
     return sendPasswordResetEmail(auth, email);
   };
 
+  const googleSignIn = async () => {
+    const provider = new GoogleAuthProvider();
+    const userCredential = await signInWithPopup(auth, provider);
+    
+    // Create profile if it's their first time
+    let profile = await userService.getUserProfile(userCredential.user.uid);
+    if (!profile) {
+      profile = await userService.createUserProfile(userCredential.user.uid, {
+        email: userCredential.user.email,
+        name: userCredential.user.displayName || 'Student',
+        phone: userCredential.user.phoneNumber || '',
+        course: ''
+      });
+    }
+    
+    // Force local state update so redirects happen instantly
+    setUser(userCredential.user);
+    setUserProfile(profile);
+    
+    return { user: userCredential.user, profile };
+  };
+
   const value = {
     user,
     userProfile,
@@ -101,7 +125,8 @@ export const AuthProvider = ({ children }) => {
     signup,
     login,
     logout,
-    resetPassword
+    resetPassword,
+    googleSignIn
   };
 
   return (
