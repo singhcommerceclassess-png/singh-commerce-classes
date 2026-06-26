@@ -1,21 +1,28 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
+import useAuth from '../../hooks/useAuth';
 import { SITE_INFO } from '../../data/mockData';
 
 const ForgotPassword = () => {
+  const { resetPassword } = useAuth();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if(!email) return;
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      await resetPassword(email);
       setStep(2);
-    }, 1500);
+    } catch (error) {
+      console.error(error);
+      setStep(2); // For security, always show success even if email not found
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

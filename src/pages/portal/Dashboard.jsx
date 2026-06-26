@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 import { LoginPromptWall } from '../../router/ProtectedRoute';
 import { DASHBOARD_STATS, RECENT_ACTIVITY } from '../../data/mockData';
 import { DashboardSkeleton } from '../../components/skeletons/Skeletons';
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -35,9 +36,9 @@ const Dashboard = () => {
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sticky top-28">
             <div className="text-center pb-6 border-b border-gray-100 mb-6">
               <div className="w-20 h-20 bg-brand-orange-light text-brand-orange rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-3">
-                {user?.name?.charAt(0) || 'S'}
+                {user?.displayName?.charAt(0) || user?.name?.charAt(0) || 'S'}
               </div>
-              <h3 className="font-bold text-navy text-lg">{user?.name || 'Student Name'}</h3>
+              <h3 className="font-bold text-navy text-lg">{user?.displayName || user?.name || 'Student Name'}</h3>
               <p className="text-xs text-gray-500 font-medium">Class XII Commerce</p>
             </div>
 
@@ -51,7 +52,13 @@ const Dashboard = () => {
               <Link to="/portal/classes" className="flex items-center gap-3 px-4 py-3 text-charcoal hover:bg-gray-50 rounded-xl font-medium transition">
                 <span>🎬</span> Online Classes
               </Link>
-              <button className="w-full flex items-center gap-3 px-4 py-3 text-charcoal hover:bg-gray-50 rounded-xl font-medium transition text-left mt-8 text-error">
+              <button 
+                onClick={async () => {
+                  await logout();
+                  navigate('/');
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-charcoal hover:bg-gray-50 rounded-xl font-medium transition text-left mt-8 text-error"
+              >
                 <span>🚪</span> Logout
               </button>
             </nav>
@@ -61,7 +68,7 @@ const Dashboard = () => {
         {/* Main Content */}
         <div className="flex-1 min-w-0">
           <div className="mb-8">
-            <h1 className="font-playfair text-3xl font-bold text-navy">Good Morning, Student! 👋</h1>
+            <h1 className="font-playfair text-3xl font-bold text-navy">Good Morning, {user?.displayName || user?.name || 'Student'}! 👋</h1>
             <p className="text-gray-500 mt-2">Here is what's happening with your courses today.</p>
           </div>
 

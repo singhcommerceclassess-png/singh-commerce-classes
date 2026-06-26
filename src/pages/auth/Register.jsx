@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, Navigate } from 'react-router-dom';
+import useAuth from '../../hooks/useAuth';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -29,6 +30,8 @@ const calculateStrength = (password) => {
 };
 
 const Register = () => {
+  const { signup, user } = useAuth();
+  const navigate = useNavigate();
   const [authMsg, setAuthMsg] = useState('');
   
   const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm({
@@ -43,9 +46,24 @@ const Register = () => {
 
   const onSubmit = async (data) => {
     setAuthMsg('');
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setAuthMsg('Registration feature coming soon. Please contact the center to enroll.');
+    try {
+      await signup(data.email, data.password, data.name, data.phone, data.course);
+      navigate('/portal/dashboard', { replace: true });
+    } catch (error) {
+      console.error(error);
+      if (error.code === 'auth/email-already-in-use') {
+        setAuthMsg('An account with this email already exists.');
+      } else if (error.code === 'auth/weak-password') {
+        setAuthMsg('Password is too weak.');
+      } else {
+        setAuthMsg('Failed to create an account. Please try again.');
+      }
+    }
   };
+
+  if (user) {
+    return <Navigate to="/portal/dashboard" replace />;
+  }
 
   return (
     <main className="bg-bg-primary min-h-screen flex flex-col items-center justify-center p-6 py-12">

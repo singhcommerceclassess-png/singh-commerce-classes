@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { NAV_LINKS, PORTAL_LINKS, SITE_INFO } from '../../data/mockData';
+import useAuth from '../../hooks/useAuth';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isPortalDropdownOpen, setIsPortalDropdownOpen] = useState(false);
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -69,7 +71,16 @@ const Navbar = () => {
               onMouseLeave={() => setIsPortalDropdownOpen(false)}
             >
               <button className="flex items-center gap-1 text-sm font-medium text-charcoal hover:text-brand-orange py-2 transition-colors">
-                Student Portal
+                {user ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 bg-brand-orange-light text-brand-orange rounded-full flex items-center justify-center font-bold text-xs">
+                      {user.displayName?.charAt(0) || 'S'}
+                    </div>
+                    <span>Portal</span>
+                  </div>
+                ) : (
+                  "Student Portal"
+                )}
                 <svg className={`w-4 h-4 transition-transform ${isPortalDropdownOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
@@ -84,11 +95,21 @@ const Navbar = () => {
                       className="flex items-center justify-between px-4 py-2.5 text-sm text-charcoal hover:bg-bg-primary transition-colors"
                     >
                       {link.name}
-                      <span className="bg-gray-100 text-gray-500 text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1">
-                        🔒 Login
-                      </span>
+                      {!user && (
+                        <span className="bg-gray-100 text-gray-500 text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1">
+                          🔒 Login
+                        </span>
+                      )}
                     </Link>
                   ))}
+                  {user && (
+                    <button
+                      onClick={() => logout()}
+                      className="w-full text-left px-4 py-2.5 text-sm text-error hover:bg-red-50 transition-colors border-t border-gray-100 mt-1"
+                    >
+                      Logout
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -155,7 +176,9 @@ const Navbar = () => {
             ))}
             
             <div className="shrink-0 mt-4">
-              <p className="text-xs uppercase tracking-wider font-bold text-gray-400 mb-4">Student Portal</p>
+              <p className="text-xs uppercase tracking-wider font-bold text-gray-400 mb-4">
+                {user ? `Portal (${user.displayName || user.name || 'Student'})` : 'Student Portal'}
+              </p>
               <div className="flex flex-col gap-4">
                 {PORTAL_LINKS.map((link) => (
                   <Link
@@ -164,9 +187,20 @@ const Navbar = () => {
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="flex items-center gap-2 text-base text-charcoal shrink-0"
                   >
-                    <span className="text-sm">🔒</span> {link.name}
+                    {!user && <span className="text-sm">🔒</span>} {link.name}
                   </Link>
                 ))}
+                {user && (
+                  <button
+                    onClick={() => {
+                      logout();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="flex items-center gap-2 text-base text-error shrink-0 text-left"
+                  >
+                    Logout
+                  </button>
+                )}
               </div>
             </div>
           </div>

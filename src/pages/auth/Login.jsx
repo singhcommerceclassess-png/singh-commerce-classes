@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, Navigate } from 'react-router-dom';
+import useAuth from '../../hooks/useAuth';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -12,6 +13,8 @@ const loginSchema = z.object({
 });
 
 const Login = () => {
+  const { login, user } = useAuth();
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState('');
 
@@ -21,10 +24,24 @@ const Login = () => {
 
   const onSubmit = async (data) => {
     setAuthError('');
-    // Simulate API Call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setAuthError('This feature will be enabled soon. Please contact us to register.');
+    try {
+      await login(data.identifier, data.password);
+      navigate('/portal/dashboard', { replace: true });
+    } catch (error) {
+      console.error(error);
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+        setAuthError('Invalid email or password.');
+      } else if (error.code === 'auth/too-many-requests') {
+        setAuthError('Too many failed attempts. Please try again later.');
+      } else {
+        setAuthError('Failed to log in. Please try again.');
+      }
+    }
   };
+
+  if (user) {
+    return <Navigate to="/portal/dashboard" replace />;
+  }
 
   return (
     <main className="bg-bg-primary min-h-screen flex flex-col items-center justify-center p-6">
