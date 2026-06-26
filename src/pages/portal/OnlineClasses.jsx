@@ -6,8 +6,8 @@ import { LECTURES } from '../../data/mockData';
 
 const OnlineClasses = () => {
   const { user } = useAuth();
-  const [openModule, setOpenModule] = useState(LECTURES[0].moduleId);
-  const [activeLecture, setActiveLecture] = useState(LECTURES[0].items[0]);
+  const [activeModule, setActiveModule] = useState(LECTURES[0]?.moduleName || '');
+  const [activeLecture, setActiveLecture] = useState(LECTURES[0]?.lectures?.[0] || null);
 
   if (!user) {
     return <LoginPromptWall />;
@@ -79,24 +79,26 @@ const OnlineClasses = () => {
               </div>
               
               <div className="flex-1 overflow-y-auto hide-scrollbar">
-                {LECTURES.map((module) => (
-                  <div key={module.moduleId} className="border-b border-gray-100 last:border-b-0">
+                {LECTURES.map((module, idx) => (
+                  <div key={idx} className="mb-4 last:mb-0">
                     <button 
-                      onClick={() => setOpenModule(openModule === module.moduleId ? null : module.moduleId)}
-                      className="w-full px-5 py-4 flex items-center justify-between bg-white hover:bg-gray-50 transition text-left"
+                      onClick={() => setActiveModule(module.moduleName)}
+                      className={`w-full flex items-center justify-between p-4 rounded-xl font-medium transition ${
+                        activeModule === module.moduleName 
+                          ? 'bg-brand-orange text-white' 
+                          : 'bg-gray-50 text-charcoal hover:bg-gray-100'
+                      }`}
                     >
-                      <div>
-                        <h4 className="font-bold text-navy text-sm mb-1">{module.title}</h4>
-                        <p className="text-xs text-gray-500">{module.items.length} Lectures</p>
+                      <div className="flex items-center gap-3">
+                        <span>{activeModule === module.moduleName ? '📂' : '📁'}</span>
+                        {module.moduleName}
                       </div>
-                      <svg className={`w-5 h-5 text-gray-400 transition-transform ${openModule === module.moduleId ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
+                      <span className="text-sm opacity-80">{module.lectures?.length || 0} videos</span>
                     </button>
                     
-                    {openModule === module.moduleId && (
-                      <div className="bg-bg-primary/50 border-t border-gray-50 divide-y divide-gray-50">
-                        {module.items.map(lecture => {
+                    {activeModule === module.moduleName && (
+                      <div className="mt-2 space-y-1 pl-4">
+                        {module.lectures?.map((lecture, lIdx) => {
                           const isActive = activeLecture.id === lecture.id;
                           return (
                             <button

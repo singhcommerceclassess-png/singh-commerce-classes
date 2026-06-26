@@ -8,12 +8,12 @@ import * as z from 'zod';
 import { SITE_INFO } from '../../data/mockData';
 
 const loginSchema = z.object({
-  identifier: z.string().min(3, { message: 'Enter a valid email or phone' }),
+  email: z.string().email('Enter a valid email address'),
   password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
 });
 
 const Login = () => {
-  const { login, user } = useAuth();
+  const { login, user, role } = useAuth();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState('');
@@ -22,11 +22,21 @@ const Login = () => {
     resolver: zodResolver(loginSchema),
   });
 
+  React.useEffect(() => {
+    if (user && role) {
+      if (role === 'admin') {
+        navigate('/admin/dashboard', { replace: true });
+      } else {
+        navigate('/portal/dashboard', { replace: true });
+      }
+    }
+  }, [user, role, navigate]);
+
   const onSubmit = async (data) => {
     setAuthError('');
     try {
-      await login(data.identifier, data.password);
-      navigate('/portal/dashboard', { replace: true });
+      await login(data.email, data.password);
+      // Navigation is handled by the useEffect above once role is loaded
     } catch (error) {
       console.error(error);
       if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
@@ -38,10 +48,6 @@ const Login = () => {
       }
     }
   };
-
-  if (user) {
-    return <Navigate to="/portal/dashboard" replace />;
-  }
 
   return (
     <main className="bg-bg-primary min-h-screen flex flex-col items-center justify-center p-6">
@@ -66,17 +72,16 @@ const Login = () => {
           )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-navy mb-1" htmlFor="identifier">Email or Phone Number</label>
-              <input
-                id="identifier"
-                type="text"
-                {...register('identifier')}
-                className="w-full border border-gray-200 rounded-lg px-4 py-3 focus:border-brand-orange focus:ring-1 focus:ring-brand-orange outline-none transition bg-white"
-                placeholder="student@example.com"
-              />
-              {errors.identifier && <p className="text-error text-xs mt-1">{errors.identifier.message}</p>}
-            </div>
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-2">Email Address</label>
+                <input
+                  type="email"
+                  {...register('email')}
+                  className={`w-full px-4 py-3 rounded-xl border ${errors.email ? 'border-error' : 'border-gray-200'} focus:border-brand-orange focus:ring-2 focus:ring-brand-orange-light outline-none transition`}
+                  placeholder="name@example.com"
+                />
+                {errors.email && <p className="mt-1 text-sm text-error">{errors.email.message}</p>}
+              </div>
 
             <div>
               <div className="flex justify-between items-center mb-1">

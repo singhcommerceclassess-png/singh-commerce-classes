@@ -352,7 +352,7 @@ export const NAV_LINKS = [
 export const PORTAL_LINKS = [
   { name: 'Dashboard', path: '/portal/dashboard' },
   { name: 'Notes Library', path: '/portal/notes' },
-  { name: 'Online Classes', path: '/portal/online-classes' },
+  { name: 'Online Classes', path: '/portal/classes' },
 ];
 
 export const FOOTER_COURSE_LINKS = [

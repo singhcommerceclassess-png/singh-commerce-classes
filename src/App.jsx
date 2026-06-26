@@ -6,7 +6,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import WhatsAppButton from './components/ui/WhatsAppButton';
-import ProtectedRoute from './router/ProtectedRoute';
+import ProtectedRoute, { AdminRoute } from './router/ProtectedRoute';
 import useScrollTop from './hooks/useScrollTop';
 
 // Lazy load pages for performance
@@ -26,6 +26,11 @@ const Dashboard = lazy(() => import('./pages/portal/Dashboard'));
 const Notes = lazy(() => import('./pages/portal/Notes'));
 const OnlineClasses = lazy(() => import('./pages/portal/OnlineClasses'));
 const Enroll = lazy(() => import('./pages/portal/Enroll'));
+
+// Admin Pages
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const UserManagement = lazy(() => import('./pages/admin/UserManagement'));
+const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'));
 
 // Simple loading spinner for suspense fallback
 const PageLoader = () => (
@@ -68,19 +73,33 @@ function App() {
 
                   {/* Protected Portal Pages */}
                   <Route path="/portal/dashboard" element={
-                    <ProtectedRoute>
-                      <Dashboard />
-                    </ProtectedRoute>
+                    <ProtectedRoute><Dashboard /></ProtectedRoute>
                   } />
                   <Route path="/portal/notes" element={
-                    <ProtectedRoute>
-                      <Notes />
-                    </ProtectedRoute>
+                    <ProtectedRoute><Notes /></ProtectedRoute>
                   } />
                   <Route path="/portal/classes" element={
-                    <ProtectedRoute>
-                      <OnlineClasses />
-                    </ProtectedRoute>
+                    <ProtectedRoute><OnlineClasses /></ProtectedRoute>
+                  } />
+
+                  {/* Admin Pages */}
+                  <Route path="/admin/dashboard" element={
+                    <AdminRoute><AdminDashboard /></AdminRoute>
+                  } />
+                  <Route path="/admin/users" element={
+                    <AdminRoute><UserManagement /></AdminRoute>
+                  } />
+                  <Route path="/admin/settings" element={
+                    <AdminRoute><AdminSettings /></AdminRoute>
+                  } />
+
+                  {/* Catch-all 404 */}
+                  <Route path="*" element={
+                    <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center">
+                      <h1 className="text-4xl font-bold text-navy mb-4 font-playfair">404 - Page Not Found</h1>
+                      <p className="text-gray-500 mb-6">The page you are looking for does not exist.</p>
+                      <Link to="/" className="bg-brand-orange text-white px-6 py-2 rounded-lg font-medium hover:bg-orange-600 transition">Go back home</Link>
+                    </div>
                   } />
                 </Routes>
               </Suspense>

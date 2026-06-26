@@ -30,9 +30,19 @@ const calculateStrength = (password) => {
 };
 
 const Register = () => {
-  const { signup, user } = useAuth();
+  const { signup, user, role } = useAuth();
   const navigate = useNavigate();
   const [authMsg, setAuthMsg] = useState('');
+
+  React.useEffect(() => {
+    if (user && role) {
+      if (role === 'admin') {
+        navigate('/admin/dashboard', { replace: true });
+      } else {
+        navigate('/portal/dashboard', { replace: true });
+      }
+    }
+  }, [user, role, navigate]);
   
   const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm({
     resolver: zodResolver(registerSchema),
@@ -48,7 +58,7 @@ const Register = () => {
     setAuthMsg('');
     try {
       await signup(data.email, data.password, data.name, data.phone, data.course);
-      navigate('/portal/dashboard', { replace: true });
+      // Navigation is handled by the useEffect above once role is loaded
     } catch (error) {
       console.error(error);
       if (error.code === 'auth/email-already-in-use') {
@@ -60,10 +70,6 @@ const Register = () => {
       }
     }
   };
-
-  if (user) {
-    return <Navigate to="/portal/dashboard" replace />;
-  }
 
   return (
     <main className="bg-bg-primary min-h-screen flex flex-col items-center justify-center p-6 py-12">

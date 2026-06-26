@@ -92,16 +92,18 @@ const Notes = () => {
                   <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-red-50 text-red-500">
                     <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" /></svg>
                   </div>
-                  <span className="bg-blue-50 text-blue-700 border border-blue-100 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded">
-                    {note.subject}
-                  </span>
+                  <div className="text-xs text-gray-500 font-medium">{note.subject}</div>
                 </div>
                 
                 <h4 className="font-bold text-navy text-sm mb-2 line-clamp-2">{note.title}</h4>
                 <p className="text-xs text-gray-500 mb-4 flex-grow line-clamp-2">{note.description}</p>
                 
+                <div className="text-xs text-gray-400 mt-2 flex items-center justify-between">
+                  <span>{note.uploadDate}</span>
+                  <span>{note.size}</span>
+                </div>
+                
                 <div className="pt-4 border-t border-gray-100 flex items-center justify-between mt-auto">
-                  <span className="text-[11px] text-gray-400 font-medium">Added: {note.date}</span>
                   <button 
                     onClick={() => handleDownload(note.title)}
                     className="bg-brand-orange text-white text-xs font-bold px-3 py-1.5 rounded hover:bg-brand-orange-dark transition"

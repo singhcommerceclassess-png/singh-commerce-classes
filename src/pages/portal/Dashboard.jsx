@@ -145,7 +145,7 @@ const Dashboard = () => {
                             <td className="px-6 py-4">
                               <div className="flex items-center gap-2">
                                 <span className="text-lg">{item.type === 'PDF Note' ? '📄' : '🎬'}</span>
-                                <span className="text-sm text-charcoal">{item.name}</span>
+                                <span className="text-sm text-charcoal">{item.item}</span>
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

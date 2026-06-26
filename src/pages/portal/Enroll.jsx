@@ -62,8 +62,8 @@ const Enroll = () => {
               <div className="w-16 h-16 bg-bg-section-alt rounded-2xl flex items-center justify-center text-3xl mx-auto mb-6">
                 {feat.icon}
               </div>
-              <h3 className="font-bold text-navy text-xl mb-3">{feat.title}</h3>
-              <p className="text-charcoal leading-relaxed">{feat.desc}</p>
+              <h4 className="font-bold text-navy text-lg">{feat.title}</h4>
+              <p className="text-sm text-gray-600 mt-1">{feat.description}</p>
             </div>
           ))}
         </div>
@@ -185,7 +185,7 @@ const Enroll = () => {
                         <div className="flex w-full items-center justify-between">
                           <div className="flex items-center gap-3">
                             <span className="text-xl">💵</span>
-                            <span className="text-sm font-semibold text-navy">Pay at Center</span>
+                            <span className="text-sm font-medium text-charcoal">Pay at Center</span>
                           </div>
                         </div>
                       </label>

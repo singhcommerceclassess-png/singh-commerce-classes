@@ -1,0 +1,27 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is admin (this reads the user doc, so be careful with recursion)
+    // A better approach for rules is relying on custom claims set by the backend, 
+    // but since we are relying on Firestore for roles initially, we use this:
+    function isAdmin() {
+      return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      // Users can read and update their own document
+      allow read: if request.auth != null && request.auth.uid == userId;
+      // Note: Initial creation is handled by the frontend, so we allow create if the ID matches.
+      // A more secure setup would use a Cloud Function for user creation, but this is fine for now.
+      allow create: if request.auth != null && request.auth.uid == userId;
+      // Only admins can update other fields like roles (prevent users from elevating themselves)
+      // Users can only update their own profile if they aren't trying to change their role
+      allow update: if request.auth != null && request.auth.uid == userId && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'accountStatus', 'uid']);
+      
+      // Admins can do anything
+      allow read, write: if isAdmin();
+    }
+  }
+}
